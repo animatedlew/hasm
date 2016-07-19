@@ -8,7 +8,7 @@ import scala.collection.mutable
 class HackParser extends JavaTokenParsers {
 
   protected override val whiteSpace = """(?:[ \t]|(/\*(\*(?!/)|[^*])*\*/)|//.*)+""".r
-  private val eol = sys.props("line.separator")
+  private val eol = """\r?\n""".r
   val RegisterRegex = "R([0-9]{1,2})".r
   val LabelRegex = """^[a-zA-Z$_.][a-zA-Z0-9$_.]+""".r
   var variableAddress = 0x10
@@ -142,8 +142,8 @@ class HackParser extends JavaTokenParsers {
     case variable => s"$LabelMarker$variable"
   }
 
-  val instruction = (cinstruction | ainstruction | linstruction | eol | epsilon) ^? (
-    { case op => lineCount += 1; op },
+  val instruction = (cinstruction | ainstruction | linstruction | epsilon) ^? (
+    { case op => if (op.nonEmpty) lineCount += 1; op },
     op => s"Error @ line: $lineCount\nOpcode: $op"
   )
 

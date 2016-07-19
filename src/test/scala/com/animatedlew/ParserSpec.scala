@@ -28,4 +28,9 @@ class ParserSpec extends FlatSpec with Matchers {
   it should "recognize jumps" in {
     p.parseAll(p.jmp, "; JGT").get should be (Some("001"))
   }
+  it should "recognize multiple commands" in {
+    val result = p.parseAll(p.multiline, "@R5\r\n0; JMP\r\n").get.mkString
+    val expected = List("0000000000000101", "1110101010000111").mkString
+    result shouldBe expected
+  }
 }
