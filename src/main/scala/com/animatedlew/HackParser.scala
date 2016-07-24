@@ -19,29 +19,29 @@ class HackParser extends JavaTokenParsers {
   implicit def stringToSymbol(s: String): Symbol = Symbol(s)
 
   var symbols = mutable.Map(
-    'R0       -> "0000000000000000",
-    'R1       -> "0000000000000001",
-    'R2       -> "0000000000000010",
-    'R3       -> "0000000000000011",
-    'R4       -> "0000000000000100",
-    'R5       -> "0000000000000101",
-    'R6       -> "0000000000000110",
-    'R7       -> "0000000000000111",
-    'R8       -> "0000000000001000",
-    'R9       -> "0000000000001001",
-    'R10      -> "0000000000001010",
-    'R11      -> "0000000000001011",
-    'R12      -> "0000000000001100",
-    'R13      -> "0000000000001101",
-    'R14      -> "0000000000001110",
-    'R15      -> "0000000000001111",
+    'R0       -> pad16bit(0),
+    'R1       -> pad16bit(1),
+    'R2       -> pad16bit(2),
+    'R3       -> pad16bit(3),
+    'R4       -> pad16bit(4),
+    'R5       -> pad16bit(5),
+    'R6       -> pad16bit(6),
+    'R7       -> pad16bit(7),
+    'R8       -> pad16bit(8),
+    'R9       -> pad16bit(9),
+    'R10      -> pad16bit(10),
+    'R11      -> pad16bit(11),
+    'R12      -> pad16bit(12),
+    'R13      -> pad16bit(13),
+    'R14      -> pad16bit(14),
+    'R15      -> pad16bit(15),
+    'SP       -> pad16bit(0),
+    'LCL      -> pad16bit(1),
+    'ARG      -> pad16bit(2),
+    'THIS     -> pad16bit(3),
+    'THAT     -> pad16bit(4),
     'SCREEN   -> "0100000000000000",
-    'KBD      -> "0110000000000000",
-    'SP       -> "0000000000000000",
-    'LCL      -> "0000000000000001",
-    'ARG      -> "0000000000000010",
-    'THIS     -> "0000000000000011",
-    'THAT     -> "0000000000000100"
+    'KBD      -> "0110000000000000"
   ) withDefault { _.name }
 
   val plus = "+"
@@ -84,11 +84,13 @@ class HackParser extends JavaTokenParsers {
     | D ~ minus ~ one ^^ { _ => "0001110" }
 
     | D ~ plus ~ A    ^^ { _ => "0000010" }
+    | A ~ plus ~ D    ^^ { _ => "0000010" }
     | D ~ minus ~ A   ^^ { _ => "0010011" }
     | D ~ and ~ A     ^^ { _ => "0000000" } // also same as mod
     | D ~ or ~ A      ^^ { _ => "0010101" }
 
     | D ~ plus ~ M    ^^ { _ => "1000010" }
+    | M ~ plus ~ D    ^^ { _ => "1000010" }
     | D ~ minus ~ M   ^^ { _ => "1010011" }
     | D ~ and ~ M     ^^ { _ => "1000000" }
     | D ~ or ~ M      ^^ { _ => "1010101" }
@@ -158,7 +160,7 @@ class HackParser extends JavaTokenParsers {
 
   private def assignAddresses(ops: Vector[String]) = {
     var address = 0
-    val pairs = ops.map { case op =>
+    val pairs = ops.map { op =>
       val loc = if (op.head == LabelMarker) {
         symbols(op.tail) = pad16bit(address)
         new String
@@ -191,6 +193,6 @@ class HackParser extends JavaTokenParsers {
 
   private def pad16bit(n: Long): String = {
     val s = n.toBinaryString
-    s"${"0" * (16 - s.length) + s}"
+    f"$s%16s".replace(' ', '0')
   }
 }
