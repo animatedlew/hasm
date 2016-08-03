@@ -4,7 +4,7 @@ import language.postfixOps
 
 object Main {
   def main(args: Array[String]): Unit = {
-    println(s"Hack Assembler 1.0\nLewis Moronta \u00A9 2016")
+    println(s"Assembler 1.0\nLewis Moronta \u00A9 2016")
     if (args.length == 1) {
       val p = new HackParser
       val file = if (args.head.contains(".asm")) args.head else s"${args.head}.asm"
